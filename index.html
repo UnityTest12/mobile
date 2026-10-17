@@ -6,8 +6,82 @@
     <title>Unity Web Player | Demo</title>
     <link rel="shortcut icon" href="TemplateData/favicon.ico">
     <link rel="stylesheet" href="TemplateData/style.css">
+
+    
+<style>
+  #start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #111;
+    color: white;
+    text-align: center;
+    padding: 24px;
+    font-family: Tahoma, Arial, sans-serif;
+  }
+
+  .start-content {
+    max-width: 420px;
+  }
+
+  .start-icon {
+    font-size: 72px;
+    margin-bottom: 20px;
+  }
+
+  #start-screen h1 {
+    font-size: 26px;
+    line-height: 1.8;
+  }
+
+  #start-screen p {
+    font-size: 17px;
+    line-height: 2;
+    color: #ddd;
+  }
+
+  #start-button {
+    margin-top: 20px;
+    padding: 15px 42px;
+    border: none;
+    border-radius: 12px;
+    background: #fff;
+    color: #111;
+    font-size: 20px;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  #start-button:disabled {
+    opacity: 0.6;
+  }
+
+  #start-screen.hidden {
+    display: none;
+  }
+</style>
+
   </head>
   <body>
+    
+<div id="start-screen" dir="rtl" lang="fa">
+  <div class="start-content">
+    <div class="start-icon">🎮</div>
+    <p>
+      برای شروع، روی دکمه زیر بزن
+      و گوشی خود را افقی نگه دار.
+    </p>
+
+    <button id="start-button" type="button">
+      شروع
+    </button>
+  </div>
+</div>
+
+    
     <div id="unity-container" class="unity-desktop">
       <div id="unity-fullscreen-container">
         <canvas id="unity-canvas" width="960" height="600" tabindex="-1"></canvas>
@@ -146,5 +220,50 @@
       document.body.appendChild(script);
 
     </script>
+
+    
+<script>
+  const startScreen = document.getElementById("start-screen");
+  const startButton = document.getElementById("start-button");
+
+  let gameStarted = false;
+
+  startButton.addEventListener("click", async function () {
+    if (gameStarted) return;
+
+    startButton.disabled = true;
+    startButton.textContent = "در حال آماده‌سازی...";
+
+    // Attempt fullscreen.
+    try {
+      if (!document.fullscreenElement &&
+          document.documentElement.requestFullscreen) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch (error) {
+      console.log("Fullscreen unavailable:", error);
+    }
+
+    // Attempt landscape orientation.
+    try {
+      if (screen.orientation &&
+          screen.orientation.lock) {
+        await screen.orientation.lock("landscape");
+      }
+    } catch (error) {
+      console.log("Landscape lock unavailable:", error);
+    }
+
+    gameStarted = true;
+    startScreen.classList.add("hidden");
+
+    // If you use a separate Unity startup function,
+    // call it here.
+    if (typeof startUnityGame === "function") {
+      startUnityGame();
+    }
+  });
+</script>
+
   </body>
 </html>
